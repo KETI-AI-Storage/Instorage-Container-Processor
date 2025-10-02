@@ -69,22 +69,34 @@ type JobState struct {
 	CancelContext context.CancelFunc
 }
 
+// ContainerStatusWebhook represents webhook payload sent to instorage-manager
+type ContainerStatusWebhook struct {
+	JobID        string `json:"job_id"`
+	Status       string `json:"status"` // running, completed, failed, cancelled
+	Message      string `json:"message"`
+	ContainerID  string `json:"container_id,omitempty"`
+	ErrorMessage string `json:"error_message,omitempty"`
+	ExitCode     *int   `json:"exit_code,omitempty"`
+	Timestamp    string `json:"timestamp"`
+}
+
 // ContainerProcessor manages Docker containers for job execution from instorage-manager
 type ContainerProcessor struct {
 	logger       logr.Logger
 	dockerClient *docker.Client
 	operatorURL  string
+	managerURL   string
 
 	// Job state management
 	jobs   map[string]*JobState
 	jobMux sync.RWMutex
 
-	// HTTP client for operator communication
+	// HTTP client for communication
 	httpClient *http.Client
 }
 
 // NewContainerProcessor creates a new container processor instance
-func NewContainerProcessor(logger logr.Logger, operatorURL string) (*ContainerProcessor, error) {
+func NewContainerProcessor(logger logr.Logger, operatorURL string, managerURL string) (*ContainerProcessor, error) {
 	// Convert logr.Logger to zap.Logger for docker client compatibility
 	zapLogger, _ := zap.NewProduction()
 
@@ -98,6 +110,7 @@ func NewContainerProcessor(logger logr.Logger, operatorURL string) (*ContainerPr
 		logger:       logger,
 		dockerClient: dockerClient,
 		operatorURL:  operatorURL,
+		managerURL:   managerURL,
 		jobs:         make(map[string]*JobState),
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
