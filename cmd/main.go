@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	DefaultHTTPPort    = "8080"
+	DefaultHTTPPort    = "40120"
 	DefaultOperatorURL = ""
 	DefaultManagerURL  = ""
 )
