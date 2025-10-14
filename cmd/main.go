@@ -18,16 +18,12 @@ import (
 )
 
 const (
-	DefaultHTTPPort    = "40120"
-	DefaultOperatorURL = ""
-	DefaultManagerURL  = ""
+	DefaultHTTPPort = "40120"
 )
 
 func main() {
 	var (
-		httpPort    = flag.String("http-port", DefaultHTTPPort, "HTTP server port")
-		operatorURL = flag.String("operator-url", DefaultOperatorURL, "Operator callback URL")
-		managerURL  = flag.String("manager-url", DefaultManagerURL, "Manager callback URL")
+		httpPort = flag.String("http-port", DefaultHTTPPort, "HTTP server port")
 	)
 
 	// Setup logging
@@ -43,22 +39,12 @@ func main() {
 	logger := zap.New(zap.UseFlagOptions(&opts))
 	ctrl.SetLogger(logger)
 
-	// Get URLs from environment if not provided
-	if *operatorURL == "" {
-		*operatorURL = os.Getenv("OPERATOR_URL")
-	}
-	if *managerURL == "" {
-		*managerURL = os.Getenv("MANAGER_URL")
-	}
-
 	logger.Info("Starting Instorage Container Processor",
 		"httpPort", *httpPort,
-		"operatorURL", *operatorURL,
-		"managerURL", *managerURL,
 	)
 
 	// Create container processor
-	processor, err := server.NewContainerProcessor(logger, *operatorURL, *managerURL)
+	processor, err := server.NewContainerProcessor(logger)
 	if err != nil {
 		logger.Error(err, "Failed to create container processor")
 		os.Exit(1)

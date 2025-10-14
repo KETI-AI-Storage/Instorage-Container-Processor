@@ -96,7 +96,7 @@ type ContainerProcessor struct {
 }
 
 // NewContainerProcessor creates a new container processor instance
-func NewContainerProcessor(logger logr.Logger, operatorURL string, managerURL string) (*ContainerProcessor, error) {
+func NewContainerProcessor(logger logr.Logger) (*ContainerProcessor, error) {
 	// Convert logr.Logger to zap.Logger for docker client compatibility
 	zapLogger, _ := zap.NewProduction()
 
@@ -109,8 +109,6 @@ func NewContainerProcessor(logger logr.Logger, operatorURL string, managerURL st
 	return &ContainerProcessor{
 		logger:       logger,
 		dockerClient: dockerClient,
-		operatorURL:  operatorURL,
-		managerURL:   managerURL,
 		jobs:         make(map[string]*JobState),
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
